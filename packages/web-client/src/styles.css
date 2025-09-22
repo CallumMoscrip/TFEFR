@@ -1,0 +1,29 @@
+/* Minimal, responsive layout. Keep neutral; production apps will add a design system. */
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+
+.app-root { max-width: 1200px; margin: 0 auto; padding: 16px; font-family: system-ui, sans-serif; }
+header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.status { text-transform: capitalize; font-size: 0.9rem; padding: 2px 8px; border-radius: 999px; background: #eee; }
+.status.connected { background: #d3f9d8; }
+.status.connecting { background: #fff3bf; }
+.status.disconnected { background: #ffe3e3; }
+
+main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.video-pane .video-placeholder { height: 360px; border: 1px dashed #aaa; display: grid; place-items: center; color: #777; }
+
+.chat-pane { display: flex; flex-direction: column; min-height: 360px; }
+.messages { flex: 1; border: 1px solid #ddd; padding: 8px; border-radius: 8px; overflow: auto; background: #fafafa; }
+.msg { margin-bottom: 8px; }
+.msg.user strong { color: #155; }
+.msg.assistant strong { color: #515; }
+.msg.system strong { color: #555; }
+
+.composer { display: flex; gap: 8px; margin-top: 8px; }
+.composer input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
+.composer button { padding: 8px 12px; border: none; border-radius: 8px; background: #333; color: white; cursor: pointer; }
+.composer button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (max-width: 900px) {
+  main { grid-template-columns: 1fr; }
+}

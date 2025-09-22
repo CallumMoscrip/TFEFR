@@ -1,0 +1,21 @@
+{
+  "name": "ai2thor-web",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Monorepo for AI2-THOR web client and gateway",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n WEB,GW -c auto \"npm:dev:web-client\" \"npm:dev:gateway\"",
+    "dev:web-client": "npm run dev -w web-client",
+    "dev:gateway": "npm run dev -w gateway",
+    "build": "npm run build -w web-client",
+    "lint": "echo \"(lint hooks ready)\"",
+    "clean": "rimraf node_modules packages/*/node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0",
+    "rimraf": "^6.0.1"
+  }
+}
