@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Gateway/Orchestrator for AI2-THOR client",
+  "description": "Gateway/Orchestrator for TFEFR client",
   "main": "src/index.js",
   "scripts": {
     "dev": "node --watch src/index.js",
