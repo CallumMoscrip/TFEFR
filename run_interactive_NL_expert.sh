@@ -8,13 +8,13 @@ set -euo pipefail
 
 if [[ $# -ne 2 ]]; then
   echo 'Too many/few arguments' >&2
-  echo 'First argument is your name: youmna|sveta|simon|rama|will|thanh|mohan|test|callum' >&2
+  echo 'First argument is your name: youmna|sveta|simon|rama|will|thanh|mohan|test' >&2
   echo 'Second argument is scenario: coffee[2]|putall[2]|cleanall[2]|toast[2]|waterplant[2]' >&2
   exit 1
 fi
 
 case "$1" in
-  youmna|sveta|simon|rama|will|thanh|mohan|test|callum) ;;  # ok
+  youmna|sveta|simon|rama|will|thanh|mohan|test) ;;  # ok
   *) echo "Invalid user '$1'." >&2; exit 2 ;;
 esac
 
@@ -29,27 +29,48 @@ esac
 
 user="$1"
 scenario="$2"
-outdir="outputs/${user}_${scenario}_$(date +%Y%m%d_%H%M%S)"
-mkdir -p "$outdir"
 
-if [[ ! -d "$outdir" ]]; then
-  echo "$outdir already exists but is not a directory" >&2
-  exit 4
+# --- Resolve project root regardless of how/where we’re launched ---
+SCRIPT_PATH="$(readlink -f "$0")"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+
+if [[ -d "$SCRIPT_DIR/src" ]]; then
+  PROJECT_ROOT="$SCRIPT_DIR"
+elif [[ -d "$SCRIPT_DIR/../src" ]]; then
+  PROJECT_ROOT="$(readlink -f "$SCRIPT_DIR/..")"
+else
+  echo "ERROR: cannot locate 'src/' relative to $SCRIPT_DIR" >&2
+  exit 10
 fi
 
-# Ensure low-latency Python I/O and consistent module path
-export PYTHONUNBUFFERED=1
-export PYTHONPATH="./src:${PYTHONPATH:-}"
+cd "$PROJECT_ROOT"
 
-# Launch the interactive runner (unbuffered -u)
-exec python -u src/driver/run_interactive.py \
+# Double-check run_interactive.py exists
+if [[ ! -f "$PROJECT_ROOT/src/driver/run_interactive.py" ]]; then
+  echo "ERROR: $PROJECT_ROOT/src/driver/run_interactive.py not found" >&2
+  exit 11
+fi
+
+# Outputs directory anchored to project root (absolute)
+outdir="$PROJECT_ROOT/outputs/${user}_${scenario}_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$outdir"
+
+# Low-latency Python I/O and module path
+export PYTHONUNBUFFERED=1
+export PYTHONPATH="$PROJECT_ROOT/src:${PYTHONPATH:-}"
+
+# Allow override of Python interpreter via env (defaults to python3)
+PYTHON_BIN="${PYTHON_BIN:-python3}"
+
+# Use absolute paths for everything that used to be relative
+exec "$PYTHON_BIN" -u "$PROJECT_ROOT/src/driver/run_interactive.py" \
   --use_gt_all \
   --planning_mode=interactive \
   --replan=none \
   --pause_every_subgoal \
-  --planning_prompts_path=./src/prompts/interactive/grounded/v1.6.1/ \
+  --planning_prompts_path="$PROJECT_ROOT/src/prompts/interactive/grounded/v1.6.1/" \
   --use_environment="$env" \
-  --teach_examples_output="${outdir}/teach_nlu.txt" \
+  --teach_examples_output="$outdir/teach_nlu.txt" \
   --llm_api=openai \
   --examples_filename=examples_selected.txt \
   --teach_examples_savemetadata
