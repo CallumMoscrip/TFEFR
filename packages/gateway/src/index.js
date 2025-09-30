@@ -15,10 +15,27 @@ const httpServer = createServer(app);
 const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
 
 // Configure & start Python interpreter
-const PYTHON_CMD  = process.env.PYTHON_CMD  || "python3";
-const PYTHON_ARGS = (process.env.PYTHON_ARGS || "-u server/interpreter.py").split(" ");
+const PYTHON_CMD  = process.env.PYTHON_CMD  || "/bin/bash"
+const PYTHON_ARGS = (process.env.PYTHON_ARGS || "-u /home/cmoscrip/embodiedAI/run_interactive_NL_expert.sh callum coffee").split(" ");
 
-const py = new PythonBridge({ cmd: PYTHON_CMD, args: PYTHON_ARGS, responseTimeoutMs: 8000 });
+// Robust env → args parsing (supports JSON array env)
+function parseArgsEnv() {
+  if (process.env.PYTHON_ARGS_JSON) return JSON.parse(process.env.PYTHON_ARGS_JSON);
+  if (process.env.PYTHON_ARGS) {
+    // simple quoted split: foo "bar baz" -> ["foo","bar baz"]
+    return (process.env.PYTHON_ARGS.match(/(?:[^\s"]+|"[^"]*")+/g) || [])
+      .map(s => s.replace(/^"|"$/g, ""));
+  }
+  return [];
+}
+
+// pass PYTHONUNBUFFERED to be safe
+const py = new PythonBridge({
+  cmd: PYTHON_CMD,
+  args: PYTHON_ARGS,
+  env: { PYTHONUNBUFFERED: "1" },
+  responseTimeoutMs: 8000
+});
 py.start();
 
 py.on("status", (s) => console.log("[python]", s));
