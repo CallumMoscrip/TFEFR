@@ -16,7 +16,7 @@ const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
 
 // Configure & start Python interpreter
 const PYTHON_CMD  = process.env.PYTHON_CMD  || "/bin/bash"
-const PYTHON_ARGS = (process.env.PYTHON_ARGS || "-u /home/cmoscrip/embodiedAI/run_interactive_NL_expert.sh callum coffee").split(" ");
+const PYTHON_ARGS = (process.env.PYTHON_ARGS || "-u /rmt/lig_staff/home/cmoscrip/dialogue2/embodiedAI/run_interactive_NL_expert.sh callum coffee").split(" ");
 
 // Robust env → args parsing (supports JSON array env)
 function parseArgsEnv() {
